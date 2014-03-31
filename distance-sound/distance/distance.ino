@@ -14,6 +14,7 @@
 #define echoPin 6
 #define led 2
 #define led2 13
+#define speakerPin 9
 
 void setup() {
   Serial.begin (9600);
@@ -21,6 +22,7 @@ void setup() {
   pinMode(echoPin, INPUT);
   pinMode(led, OUTPUT);
   pinMode(led2, OUTPUT);
+  pinMode(speakerPin, OUTPUT);
 }
 
 void loop() {
@@ -36,6 +38,7 @@ void loop() {
   if (distance < 4) {  // This is where the LED On/Off happens
     digitalWrite(led,HIGH); // When the Red condition is met, the Green LED should turn off
   digitalWrite(led2,LOW);
+  buzz(speakerPin, 1750 - (distance * 10), 500);
 }
   else {
     digitalWrite(led,LOW);
@@ -49,4 +52,23 @@ void loop() {
     Serial.println(" cm");
   }
   delay(500);
+}
+
+void buzz(int targetPin, long frequency, long length)
+{
+  digitalWrite(13,HIGH);
+  long delayValue = 1000000/frequency/2; // calculate the delay value between transitions
+  //// 1 second's worth of microseconds, divided by the frequency, then split in half since
+  //// there are two phases to each cycle
+  long numCycles = frequency * length/ 1000; // calculate the number of cycles for proper timing
+  //// multiply frequency, which is really cycles per second, by the number of seconds to 
+  //// get the total number of cycles to produce
+  for (long i=0; i < numCycles; i++){ // for the calculated length of time...
+    digitalWrite(targetPin,HIGH); // write the buzzer pin high to push out the diaphram
+    delayMicroseconds(delayValue); // wait for the calculated delay value
+    digitalWrite(targetPin,LOW); // write the buzzer pin low to pull back the diaphram
+    delayMicroseconds(delayValue); // wait again or the calculated delay value
+  }
+  digitalWrite(13,LOW);
+
 }
