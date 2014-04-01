@@ -15,17 +15,47 @@
 #define led 2
 #define led2 13
 #define speakerPin 9
+#define buttonPin 3
 
-void setup() {
+long beepDuration = 500;
+// Variables will change:
+int buttonPushCounter = 0;   // counter for the number of button presses
+int buttonState = 0;         // current state of the button
+int lastButtonState = 0;     // previous state of the button
+
+void setup()  
+{
   Serial.begin (9600);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   pinMode(led, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(speakerPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
 }
 
-void loop() {
+void loop() 
+{
+  
+   buttonState = digitalRead(buttonPin);
+
+  // compare the buttonState to its previous state
+  if (buttonState != lastButtonState) 
+  {
+    // if the state has changed, increment the counter
+    if (buttonState == HIGH) 
+    {
+      beepDuration = beepDuration - 50;
+    }
+    if (beepDuration <= 10)
+    {
+      beepDuration = 1000;
+    }
+    Serial.println(beepDuration);
+  }
+  
+  lastButtonState = buttonState;
+  
   long duration, distance;
   digitalWrite(trigPin, LOW);  // Added this line
   delayMicroseconds(2); // Added this line
@@ -35,10 +65,11 @@ void loop() {
   digitalWrite(trigPin, LOW);
   duration = pulseIn(echoPin, HIGH);
   distance = (duration/2) / 29.1;
-  if (distance < 4) {  // This is where the LED On/Off happens
+  if (distance < 10) 
+  {  // This is where the LED On/Off happens
     digitalWrite(led,HIGH); // When the Red condition is met, the Green LED should turn off
   digitalWrite(led2,LOW);
-  buzz(speakerPin, 1750 - (distance * 10), 500);
+  buzz(speakerPin, 1750 - (distance * 10), beepDuration);
 }
   else {
     digitalWrite(led,LOW);
